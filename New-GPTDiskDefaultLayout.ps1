@@ -44,7 +44,7 @@ Param (
 )
 
 Begin {
-    # Verify unless ConfirmPreference already lowered
+    # Make user confirm unless ConfirmPreference already lowered in command line
     if ( $ConfirmPreference.value__ -gt 1 ) {
         Write-Warning -Message "This procedure will clear the disk (disk number $($DiskNumber)). All data will be erased. You are required to confirm the changes before the procedure continues."
         # Prompt to confirm
