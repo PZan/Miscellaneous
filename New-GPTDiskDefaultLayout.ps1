@@ -57,55 +57,97 @@ Begin {
     }
     if ( $Confirm -eq 0 ) {
         Write-Host "Process stopped by user"
-        break
+        ## Exit the script, returning the exit code 1602 (ERROR_INSTALL_USEREXIT)
+	    If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
     }
 }
 Process {
+    
     try {
         # Import the Storage module
-        Import-Module Storage
+        Import-Module Storage -ErrorAction Stop  
+    } catch {
+        Write-Warning "Failed to import Storage module"
+        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
+    }
 
+    try {
         # Get total disk size
-        [uint64]$TotalDiskSize = (Get-Disk -Number $DiskNumber | Select-Object -ExpandProperty Size)
+        [uint64]$TotalDiskSize = (Get-Disk -Number $DiskNumber -ErrorAction Stop | Select-Object -ExpandProperty Size)
+    } catch {
+        Write-Warning "Failed to to get disk $DiskNumber"
+        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
+    }
 
+    try {
         # Calculate size of Windows partition (not sure why the extra 2MB are necessary, but the recovery disk would end up as 1022 MB otherwise)
         [uint64]$WindowsPartitionSize  = $TotalDiskSize - ($EFIPartitionSize + $MSRPartitionSize + $RecoveryPartitionSize + 2MB)
+    }
+    catch {
+        Write-Warning "Failed to calculate Windows partition size (validate disk size and partition)"
+        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
+    }
 
-        # Clear disk and initialize
-        Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -Confirm:$false
-        Initialize-Disk -Number $DiskNumber
-
+    try {
+        # Clear disk
+        Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -Confirm:$false -ErrorAction Stop
+        # Initialize disk
+        Initialize-Disk -Number $DiskNumber -ErrorAction Stop
         # Set Partition Style to GPT
-        Set-Disk -Number $DiskNumber -PartitionStyle GPT
+        Set-Disk -Number $DiskNumber -PartitionStyle GPT -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Failed to prepare disk $DiskNumber for partitioning."
+        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
+    }
+
+    try {    
 
         # Create and format EFI Partition/volume
-        New-Partition -DiskNumber $DiskNumber -Size $EFIPartitionSize -GptType '{c12a7328-f81f-11d2-ba4b-00a0c93ec93b}' -IsHidden:$false -IsActive:$false -DriveLetter T
-        Format-Volume -DriveLetter T -FileSystem FAT32 -NewFileSystemLabel "System"
+        New-Partition -DiskNumber $DiskNumber -Size $EFIPartitionSize -GptType '{c12a7328-f81f-11d2-ba4b-00a0c93ec93b}' -IsHidden:$false -IsActive:$false -DriveLetter T -ErrorAction Stop
+        Format-Volume -DriveLetter T -FileSystem FAT32 -NewFileSystemLabel "System" -ErrorAction Stop
 
         #Remove T(emporary) drive letter from EFI Partition
-        Get-Disk -Number $DiskNumber | Get-Partition | Where-Object {$_.DriveLetter -eq "T" } | Remove-PartitionAccessPath -AccessPath "T:\"
+        Get-Disk -Number $DiskNumber -ErrorAction Stop | Get-Partition -ErrorAction Stop | Where-Object {$_.DriveLetter -eq "T" } | Remove-PartitionAccessPath -AccessPath "T:\" -ErrorAction Stop
 
         # Create MSR Partition
-        New-Partition -DiskNumber $DiskNumber -Size $MSRPartitionSize -GptType '{e3c9e316-0b5c-4db8-817d-f92df00215ae}' -IsHidden:$true -IsActive:$false -AssignDriveLetter:$false
+        New-Partition -DiskNumber $DiskNumber -Size $MSRPartitionSize -GptType '{e3c9e316-0b5c-4db8-817d-f92df00215ae}' -IsHidden:$true -IsActive:$false -AssignDriveLetter:$false -ErrorAction Stop
 
         # Create and format Windows Partition
-        New-Partition -DiskNumber $DiskNumber -Size $WindowsPartitionSize -GptType '{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}' -IsHidden:$false -DriveLetter C
-        Format-Volume -DriveLetter C -FileSystem NTFS -NewFileSystemLabel "Windows"
-        
+        New-Partition -DiskNumber $DiskNumber -Size $WindowsPartitionSize -GptType '{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}' -IsHidden:$false -DriveLetter C -ErrorAction Stop
+        Format-Volume -DriveLetter C -FileSystem NTFS -NewFileSystemLabel "Windows" -ErrorAction Stop
+                
         # Create and format Recovery Partition
-        New-Partition -DiskNumber $DiskNumber -UseMaximumSize -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -IsHidden:$false -IsActive:$false -DriveLetter T
-        Format-Volume -DriveLetter T -FileSystem NTFS -NewFileSystemLabel "Recovery"
+        New-Partition -DiskNumber $DiskNumber -UseMaximumSize -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -IsHidden:$false -IsActive:$false -DriveLetter T -ErrorAction Stop
+        Format-Volume -DriveLetter T -FileSystem NTFS -NewFileSystemLabel "Recovery" -ErrorAction Stop
 
         #Remove T(emporary) drive letter from Recovery Partition
         Get-Disk -Number $DiskNumber | Get-Partition | Where-Object {$_.DriveLetter -eq "T" } | Remove-PartitionAccessPath -AccessPath "T:\"
-
+        Get-Disk -Number $DiskNumber -ErrorAction Stop | Get-Partition -ErrorAction Stop | Where-Object {$_.DriveLetter -eq "T" } | Remove-PartitionAccessPath -AccessPath "T:\" -ErrorAction Stop
+    }
+        catch {
+        Write-Warning "Failed to complete partitioning."
+        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
+    }
+    
+    try { 
+        # Construct TSEnvironment ComObject
+        $TSEnvironment = New-Object -ComObject Microsoft.SMS.TSEnvironment -ErrorAction Stop
         # Set TS Variable OSDisk to C
         $TSEnvironment.Value("OSDisk") = "C:"
     }
     catch {
-        throw $($_.Exception | Select-Object -ExpandProperty Message)
+        Write-Warning "Failed to set OSDisk Task Sequence variable."
+        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
     }
 }
 End {
-    
+    # Exit the script, returning the exit code 0 (ERROR_SUCCESS)
+    If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 0; Exit } Else { Exit 0 }    
 }
