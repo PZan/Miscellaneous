@@ -56,9 +56,9 @@ Begin {
         }
     }
     if ( $Confirm -eq 0 ) {
-        Write-Host "Process stopped by user"
+        Write-Warning "Process stopped by user"
         ## Exit the script, returning the exit code 1602 (ERROR_INSTALL_USEREXIT)
-	    If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
     }
 }
 Process {
@@ -137,14 +137,12 @@ Process {
     
     try { 
         # Construct TSEnvironment ComObject
-        $TSEnvironment = New-Object -ComObject Microsoft.SMS.TSEnvironment -ErrorAction Stop
+        $TSEnvironment = New-Object -ComObject Microsoft.SMS.TSEnvironment
         # Set TS Variable OSDisk to C
         $TSEnvironment.Value("OSDisk") = "C:"
     }
     catch {
         Write-Warning "Failed to set OSDisk Task Sequence variable."
-        # Exit the script, returning the exit code 1603 (ERROR_INSTALL_FAILURE)
-        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
     }
 }
 End {
