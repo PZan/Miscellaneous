@@ -1,2 +1,2 @@
 # Miscellaneous
-Various scripts (mostly PowerShell based). Often, but not always, quick and dirty
+Various PowerShell based scripts. Mostly intended to simplify or enhance administrative tasks in an Windows environment.
