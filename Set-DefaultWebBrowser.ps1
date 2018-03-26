@@ -13,8 +13,7 @@
     SupportsShouldProcess = $true,
     ConfirmImpact = 'High'
 )]
-Param
-(
+Param (
     # Choose one of the four defined web browsers Iexplore, Edge, Chrome or Firefox
     [Parameter(Mandatory=$true,Position=0)]
     [ValidateSet('InternetExplorer','Edge','Chrome','Firefox')]
@@ -27,7 +26,7 @@ Param
 Begin {
     # Prompt for confirmation if path is UNC and confirm is not set to $false.
     if($Path -like "\\*" -and $ConfirmPreference.value__ -gt 0) {
-        Write-Warning -Message "It appears the path to the default application associations xml file is located on a network share ($Path). Changes to this file can potentially affect multiple systems. Please confirm before proceeding."
+        Write-Warning -Message "It appears that the path to the default application associations xml file is located on a network share ($Path). Changes to this file can potentially affect multiple systems. Please confirm before proceeding."
         # Prompt to confirm
         [int]$Confirm = 0
         [string]$prompt = Read-Host "Type [Y]es to accept the changes. Any other input will stop the execution of this script."
@@ -44,7 +43,7 @@ Begin {
     }
     # Construct a valid path. This is necessary specifically when the policy defined includes system variables.
     [string]$XMLFilePath = ""
-    $Path.Split("%") | % {
+    $Path.Split("%") | ForEach-Object {
         Switch ($_) {
             SystemDrive {$XMLFilePath += $($env:SystemDrive)}
             ALLUSERSPROFILE {$XMLFilePath += $($env:ALLUSERSPROFILE)}
@@ -112,7 +111,7 @@ Process {
         $FileTypeAssociations = $XMLElementDefaultAssociations.Association
             
         # Process existing file type and protocol associations, and match web related file types and protocols.
-        $FileTypeAssociations | % { 
+        $FileTypeAssociations | ForEach-Object { 
             if ( $_.Identifier -eq ".htm" ) {
                 if( $_.ApplicationName -ne $FileTypeHTM[1] ) {
                     $_.SetAttribute("ProgId","$($FileTypeHTM[0])")
