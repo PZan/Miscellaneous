@@ -124,7 +124,7 @@ Process {
                 $newAssociation.SetAttribute("ProgId","$ProgId")
                 $newAssociation.SetAttribute("ApplicationName","$AppName")
                 $XMLElementDefaultAssociations.AppendChild($newAssociation) | Out-Null
-                [bool]$hasChanged = $true
+                $hasChanged = $true
             }
         }
         # Process existing file type and protocol associations, and match web related file types and protocols.
