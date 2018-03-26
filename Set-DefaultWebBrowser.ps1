@@ -42,7 +42,6 @@ Begin {
             If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
         }
     }
-
     # Construct a valid path. This is necessary specifically when the policy defined includes system variables.
     [string]$XMLFilePath = ""
     $Path.Split("%") | % {
@@ -60,12 +59,10 @@ Begin {
             default {$XMLFilePath += $_}
         }
     }
-
     if ( ! ( Test-Path -LiteralPath $XMLFilePath -PathType Leaf ) ) {
         Write-Warning "File not found in path $Path"
         If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
     }
-
 }
 Process {
     Switch ( $WebBrowser ) {
@@ -102,7 +99,6 @@ Process {
             [array]$ProtocolHTTPS = @("FirefoxHTML","Mozilla Firefox")
         }
     }
-
     try {
         # Expect no changes to the xml file.
         [bool]$hasChanged = $false
@@ -161,13 +157,11 @@ Process {
                 }
             }
         }
-
         # Update XML file if changes were made.
         if( $hasChanged ) {
             $DefaultAssociationsXMLFile.Save($XMLFilePath)
             Write-Verbose "Successfully updated xml file in path $XMLFilePath!"
         }
-
     } catch {
         Write-Error "An error occured while updating file type and protocol associations."
         If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
