@@ -26,7 +26,10 @@ New-GPTDiskDefaultLayout.ps1 -DiskNumber 0 -EFIPartitionSize 512MB -MSRPartition
 In this example every parameter is set to custom values and confirmation is supplied in the command line (silent mode).
 
 .NOTES
-Version 0.1
+THIS CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
+EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR
+FITNESS FOR A PARTICULAR PURPOSE. 
+Y'know... Just don't screw me over if you execute this script site-wide and something goes wrong...
 #>
 [CmdletBinding(
     SupportsShouldProcess = $true,

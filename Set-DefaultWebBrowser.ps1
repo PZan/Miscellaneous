@@ -1,13 +1,25 @@
 ﻿<#
 .Synopsis
-   Sets default Web Browser on Windows 10 on systems where there's an AppAssoc xml file defined.
+Sets default Web Browser on Windows 10 on systems where there's an AppAssoc xml file defined.
+
 .DESCRIPTION
-   Sets default Web Browser on Windows 10 on systems where there's an AppAssoc XML file defined (commonly via GPO). The function searches for web browser related file types and protocols in the xml file and replaces it with the any of the predefined choices of Iexplore, Edge, Chrome Firefox.
-   https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-default-application-association-servicing-command-line-options
+Sets default Web Browser on Windows 10 on systems where there's an AppAssoc XML file defined (commonly via GPO). 
+The script searches for web browser related file types and protocols in the xml file and replaces it with the any of the predefined choices of Iexplore, Edge, Chrome Firefox.
+Due to the fact that the file will most likely be located in a folder where normal users are restricted from writing, this script should be exectuted with administrative privileges.
+More on file type associations in Windows 10 can be found here:
+https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-default-application-association-servicing-command-line-options
+
 .EXAMPLE
-   Set-DefaultWebBrowser -WebBrowser Chrome
+Set-DefaultWebBrowser -WebBrowser Chrome
+
 .EXAMPLE
-   Set-DefaultWebBrowser -WebBrowser Chrome -Path '\\client1\C$\ProgramData\AppAssoc.xml'
+Set-DefaultWebBrowser -WebBrowser Chrome -Path '\\client1\C$\ProgramData\AppAssoc.xml'
+
+.Notes
+THIS CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
+EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR
+FITNESS FOR A PARTICULAR PURPOSE. 
+Y'know... Just don't screw me over if you execute this script site-wide and something goes wrong...
 #>
 [CmdletBinding(
     SupportsShouldProcess = $true,
@@ -185,7 +197,6 @@ Process {
 End {
     if ( $hasChanged ) {
         Write-Host "File type and/or protocol associations has been updated. Log off / log on is required for the changes to take place."
-        return $true
     } else {
         Write-Host "No changes were made to the file."
     }
