@@ -22,7 +22,6 @@ Param (
     [Parameter(Mandatory=$false,Position=1)]
     [string]$Path = $(Get-ItemProperty -LiteralPath "REGISTRY::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" -Name DefaultAssociationsConfiguration -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DefaultAssociationsConfiguration)
 )
-
 Begin {
     # Prompt for confirmation if path is UNC and confirm is not set to $false.
     if($Path -like "\\*" -and $ConfirmPreference.value__ -gt 0) {
@@ -101,15 +100,33 @@ Process {
     try {
         # Expect no changes to the xml file.
         [bool]$hasChanged = $false
-            
+        [array]$WebTypes = ".htm",".html",".url",".website","http","https"
         # Load XML file
         [Xml.XmlDocument]$DefaultAssociationsXMLFile = Get-Content -LiteralPath $XMLFilePath
         # Get all DefaultAssociations node
         [Xml.XmlElement]$XMLElementDefaultAssociations = $DefaultAssociationsXMLFile.DefaultAssociations 
-            
         # Get Associations node under DefaultAssociations node
         $FileTypeAssociations = $XMLElementDefaultAssociations.Association
-            
+        # Add Attribute if not found in list of default apps xml file.
+        foreach ($WebType in $WebTypes) {
+            if ($WebType -notin $FileTypeAssociations.Identifier ) {
+                # The type was not found in the xml file. Let's add it.
+                switch ($WebType) {
+                    .htm { $ProgId = $FileTypeHTM[0]; $AppName = $FileTypeHTM[1]; }
+                    .html { $ProgId = $FileTypeHTML[0]; $AppName = $FileTypeHTML[1]; }
+                    .url { $ProgId = $FileTypeURL[0]; $AppName = $FileTypeURL[1];  }
+                    .website { $ProgId = $FileTypeWebsite[0]; $AppName = $FileTypeWebsite[1]; }
+                    http { $ProgId = $ProtocolHTTP[0]; $AppName = $ProtocolHTTP[1]; }
+                    https { $ProgId = $ProtocolHTTPS[0]; $AppName = $ProtocolHTTPS[1]; }
+                }
+                $newAssociation = $DefaultAssociationsXMLFile.CreateElement("Association")
+                $newAssociation.SetAttribute("Identifier","$WebType")
+                $newAssociation.SetAttribute("ProgId","$ProgId")
+                $newAssociation.SetAttribute("ApplicationName","$AppName")
+                $XMLElementDefaultAssociations.AppendChild($newAssociation) | Out-Null
+                [bool]$hasChanged = $true
+            }
+        }
         # Process existing file type and protocol associations, and match web related file types and protocols.
         $FileTypeAssociations | ForEach-Object { 
             if ( $_.Identifier -eq ".htm" ) {
@@ -128,7 +145,6 @@ Process {
                 }
             } elseif ( $_.Identifier -eq ".url" ) {
                 if( $_.ApplicationName -ne $FileTypeURL[1] ) {
-                    #$_ -replace $_ 
                     $_.SetAttribute("ProgId","$($FileTypeURL[0])")
                     $_.SetAttribute("ApplicationName","$($FileTypeURL[1])")
                     $hasChanged = $true
@@ -168,7 +184,7 @@ Process {
 }
 End {
     if ( $hasChanged ) {
-        Write-Host "File type and/or protocol associations has been updated. Log off / log on is required for the chagnes to take place."
+        Write-Host "File type and/or protocol associations has been updated. Log off / log on is required for the changes to take place."
         return $true
     } else {
         Write-Host "No changes were made to the file."
