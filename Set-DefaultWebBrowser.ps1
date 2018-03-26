@@ -196,7 +196,7 @@ Process {
 }
 End {
     if ( $hasChanged ) {
-        Write-Host "File type and/or protocol associations has been updated. Log off / log on is required for the changes to take place."
+        Write-Host "File type and/or protocol associations has been updated. User has to log off / log on in order for the changes to take place."
     } else {
         Write-Host "No changes were made to the file."
     }
