@@ -95,6 +95,11 @@ Process {
     }
 
     try {
+        # Initalize if RAW
+        if ( $(Get-Disk -Number $DiskNumber | Select-Object -ExpandProperty PartitionStyle) -eq "RAW" ) {
+            # Initialize disk
+            Initialize-Disk -Number $DiskNumber -ErrorAction Stop
+        }
         # Clear disk
         Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -Confirm:$false -ErrorAction Stop
         # Initialize disk
