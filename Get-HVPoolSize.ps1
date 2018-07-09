@@ -9,6 +9,7 @@ Gets VMware Horizon pool size. Requires Horizon Server name, Pool name and valid
 Get-HVPoolSize -HVServer "MyHVServer" -PoolName "My HVPool"
 
 .EXAMPLE
+$MyCreds = Get-Credential
 Get-HVPoolSize -HVServer "MyHVServer" -PoolName "My HVPool" -Credential $MyCreds
 
 .Notes

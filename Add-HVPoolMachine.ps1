@@ -10,7 +10,7 @@ Add-HVPoolMachine -HVServer "MyHVServer" -PoolName "My HVPool"
 
 .EXAMPLE
 $MyCreds = Get-Credential
-Add-HVPoolMachine -HVServer "MyHVServer" -PoolName "My HVPool" -Number 5 -Credential $MyCreds
+Add-HVPoolMachine -HVServer "MyHVServer" -PoolName "My HVPool" -Number 5 -Credential $MyCreds -Confirm:$false
 
 .Notes
 THIS CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
