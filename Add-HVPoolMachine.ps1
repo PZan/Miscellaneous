@@ -40,6 +40,12 @@ Param (
     [int]$Number=1
 )
 Begin{
+    # Verify $Number is positive
+    if ( $Number -lt 0 ) {
+        Write-Warning "Number is less than 0"
+        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
+    }
+    
     # User will have to confirm the changes if $confirm is $true.
     if ( $ConfirmPreference.value__ -gt 1 ) {
         Write-Warning -Message "You are about to increase the maximum number of machines with $Number machine/s in the pool $PoolName. Please confirm before proceeding (supply -Confirm:`$false to bypass)."
@@ -91,7 +97,7 @@ Process{
     # Fetch current pool size and increase with $Number
     [int]$CurrentPoolSize = $HVPool.AutomatedDesktopData.VmNamingSettings.PatternNamingSettings.MaxNumberOfMachines
     Write-Verbose -Message "Current pool size is: $CurrentPoolSize"
-    [int]$NewPoolSize = $CurrentPoolSize += $Number
+    [int]$NewPoolSize = $CurrentPoolSize + $Number
    
     # Set the pool size
     try {
