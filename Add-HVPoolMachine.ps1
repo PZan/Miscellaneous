@@ -3,7 +3,8 @@
 Increases the maximum number of provisioned machines in a VMware Horizon pool.
 
 .DESCRIPTION
-Increases the maximum number of provisioned machines in a VMware Horizon pool. Default is to increase pool size by one.
+Increases the maximum number of provisioned machines in a VMware Horizon pool. Default is to increase pool size by one. 
+The script requires the modules VMware.VimAutomation.HorizonView, VMware.VimAutomation.Cis.Core and VMware.Hv.Helper.
 
 .EXAMPLE
 Add-HVPoolMachine -HVServer "MyHVServer" -PoolName "My HVPool"

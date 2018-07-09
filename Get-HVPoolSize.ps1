@@ -3,7 +3,8 @@
 Gets VMware Horizon pool size.
 
 .DESCRIPTION
-Gets VMware Horizon pool size. Requires Horizon Server name, Pool name and valid user credentials.
+Gets VMware Horizon pool size. 
+The script requires the modules VMware.VimAutomation.HorizonView, VMware.VimAutomation.Cis.Core and VMware.Hv.Helper.
 
 .EXAMPLE
 Get-HVPoolSize -HVServer "MyHVServer" -PoolName "My HVPool"
