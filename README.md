@@ -9,5 +9,6 @@ UEFI/GPT: https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/
 DISM FTA: https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-default-application-association-servicing-command-line-options
 
 VMware Horizon
+
 HvHelper: https://github.com/vmware/PowerCLI-Example-Scripts/tree/master/Modules/VMware.Hv.Helper
 VMware PS Gallery: https://www.powershellgallery.com/profiles/VMware/
