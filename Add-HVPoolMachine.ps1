@@ -6,6 +6,11 @@ Increases the maximum number of provisioned machines in a VMware Horizon pool.
 Increases the maximum number of provisioned machines in a VMware Horizon pool. Default is to increase pool size by one. 
 The script requires the modules VMware.VimAutomation.HorizonView, VMware.VimAutomation.Cis.Core and VMware.Hv.Helper.
 
+.Link
+https://github.com/PZan
+https://github.com/vmware/PowerCLI-Example-Scripts
+https://www.powershellgallery.com/packages/VMware.VimAutomation.HorizonView/7.5.0.8827468
+
 .EXAMPLE
 Add-HVPoolMachine -HVServer "MyHVServer" -PoolName "My HVPool"
 
@@ -16,10 +21,10 @@ Add-HVPoolMachine -HVServer "MyHVServer" -PoolName "My HVPool" -Number 5 -Creden
 .Notes
 THIS CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
 EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR
-FITNESS FOR A PARTICULAR PURPOSE. 
+FITNESS FOR A PARTICULAR PURPOSE.
 #>
 [CmdletBinding(
-    SupportsShouldProcess = $true,ConfirmImpact = 'High'
+    SupportsShouldProcess = $true, ConfirmImpact = 'High'
 )]
 Param (
     # Define name of Horizon View Server
@@ -37,37 +42,28 @@ Param (
     # Define the size of the Horizon View Pool
     [Parameter(Mandatory=$false,Position=3,DontShow)]
     [ValidateNotNullOrEmpty()]
+    [ValidateRange(0,[int]::MaxValue)]
     [int]$Number=1
 )
 Begin{
-    # Verify $Number is positive
-    if ( $Number -lt 0 ) {
-        Write-Warning "Number is less than 0"
-        If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
-    }
-    
     # User will have to confirm the changes if $confirm is $true.
-    if ( $ConfirmPreference.value__ -gt 1 ) {
+    if ( $ConfirmPreference -eq "High" ) {
         Write-Warning -Message "You are about to increase the maximum number of machines with $Number machine/s in the pool $PoolName. Please confirm before proceeding (supply -Confirm:`$false to bypass)."
-        # Prompt to confirm
-        [int]$Confirm = 0
         [string]$Prompt = Read-Host "Type [Y]es to accept the changes. Any other input will stop the execution of this script"
-        switch ( $Prompt.ToUpper() ) {
-            "YES" { $Confirm = 1; break }
-            "Y"   { $Confirm = 1; break }
-        }
-            
-        if ( $Confirm -eq 0 ) {
-            Write-Warning "Process stopped by user"
-            ## Exit the script, returning the exit code 1602 (ERROR_INSTALL_USEREXIT)
-            If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
+        switch -Exact ( $Prompt.ToUpper() ) {
+            "YES" { <#do_nothing#> }
+            "Y"   { <#do_nothing#> }
+            Default {
+                Write-Warning "Process stopped by user"
+                ## Exit the script, returning the exit code 1602 (ERROR_INSTALL_USEREXIT)
+                If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1602; Exit } Else { Exit 1602 }
+             }
         }
     }
+
     # Import modules
     try {
-        Import-Module -Name VMware.VimAutomation.HorizonView -Verbose:$false -ErrorAction Stop
-        Import-Module -Name VMware.VimAutomation.Cis.Core -Verbose:$false -ErrorAction Stop
-        Import-Module -Name VMware.Hv.Helper -Verbose:$false -ErrorAction Stop
+        Import-Module -Name VMware.VimAutomation.HorizonView,VMware.VimAutomation.Cis.Core,VMware.Hv.Helper -Verbose:$false -ErrorAction Stop
     } catch {
         Write-Error -Message "An error occurred while importing modules. Please verify that you have installed VMware.VimAutomation.HorizonView, VMware.VimAutomation.Cis.Core and VMware.Hv.Helper"
         If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
@@ -77,9 +73,9 @@ Process{
     # Connect HVServer
     try {
         [VMware.VimAutomation.HorizonView.Impl.V1.ViewObjectImpl]$HVConnection = Connect-HVServer -Server $HVServer -Credential $Credential -ErrorAction Stop
-        Write-Verbose -Message "Successfully connected to HVServer ($HVServer)"
+        Write-Verbose -Message "Successfully connected to the Horizon Server ($HVServer)"
     } catch {
-        Write-Error -Message "An error occured during establishment of connection to HVServer ($HVServer)"
+        Write-Error -Message "An error occured during the establishment of connection to HVServer ($HVServer)"
         If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
     }
 
@@ -101,8 +97,12 @@ Process{
    
     # Set the pool size
     try {
-        Write-Verbose -Message "Setting pool size to: $NewPoolSize"
-        Set-HVPool -PoolName $PoolName -Key "automatedDesktopData.vmNamingSettings.patternNamingSettings.maxNumberOfMachines" -Value $NewPoolSize -ErrorAction Stop
+        if ( $WhatIfPreference ) {
+            Write-Host -Object "What if: Would increase pool size from $CurrentPoolSize to: $NewPoolSize on pool $PoolName"
+        } else {
+            Write-Verbose -Message "Setting pool size to: $NewPoolSize"
+            Set-HVPool -PoolName $PoolName -Key "automatedDesktopData.vmNamingSettings.patternNamingSettings.maxNumberOfMachines" -Value $NewPoolSize -ErrorAction Stop
+        }
     } catch {
         Write-Error -Message "Failed to set the pool size."
         $HVConnection = Disconnect-HVServer -Server $HVServer -Confirm:$false
@@ -118,7 +118,7 @@ Process{
 }
 End{
     # Disconnect from HVServer
-    $HVConnection = Disconnect-HVServer -Server $HVServer -Confirm:$false
+    $HVConnection = Disconnect-HVServer -Server $HVServer -Confirm:$false -WhatIf:$false -Force
     # Write success message and exit script
     Write-Host -Object "Successfully set the pool size of $PoolName to: $NewPoolSize"
     If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 0; Exit } Else { Exit 0 }
