@@ -8,7 +8,7 @@ By defualt the script attempts to pick the first unassigned machine in the suppl
 As an option you can supply machine name and ad group identity with params (hidden from tab completion).
 Please do always use verbose and whatif to safely follow along when the script runs.
 
-The script requires the modules VMware.VimAutomation.HorizonView, VMware.VimAutomation.Cis.Core, VMware.Hv.Helper and ActiveDirectory (optional)
+The script requires the modules VMware.VimAutomation.HorizonView, VMware.VimAutomation.Cis.Core, VMware.Hv.Helper and ActiveDirectory
 
 .Link
 https://github.com/PZan
