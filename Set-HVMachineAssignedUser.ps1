@@ -42,7 +42,7 @@ Param (
     [string]$PoolName,
     # Provide name of an unassigned VM in the pool
     [Parameter(Mandatory=$false,Position=2,DontShow)]
-    [string]$MachineName=$null,
+    [string]$MachineName=$false,
     # Provide user name to be assigned to machine
     [Parameter(Mandatory=$true,Position=3,HelpMessage="Please provide the username you wish to assign to the machine (example: JohnDoe01)")]
     [ValidateNotNullOrEmpty()]
@@ -54,7 +54,7 @@ Param (
     # Provide name of an unassigned VM in the pool
     [Parameter(Mandatory=$false,Position=5,DontShow)]
     [ValidateNotNullOrEmpty()]
-    [string]$ADGroupIdentity,
+    [string]$ADGroupIdentity=$false,
     # Provide valid user credentials
     [Parameter(Mandatory=$false,Position=6)]
     [ValidateNotNullOrEmpty()]
@@ -139,8 +139,8 @@ Process{
         }
     }
 
-    # If $MachineName is not set, figure out first unassigned machine available
-    if ( -not $MachineName ) {
+    # If $MachineName is not set, figure out first unassigned machine in pool
+    if ( $MachineName -eq $false ) {
         # Get pool summary
         Write-Verbose -Message "Fetching machine summary of the pool $PoolName"
         [Object[]]$PoolMachineSummary = Get-HVMachineSummary -PoolName $PoolName
@@ -152,7 +152,7 @@ Process{
             # Fetch first unassigned machines
             Write-Verbose -Message "Finding machines available for assignment."
             [Object[]]$AllAvailableMachines = $PoolMachineSummary | Select-Object -Property @{L='MachineName';E={$_.Base.Name}},@{L='UserName';E={$_.NamesData.UserName}} | Where-Object {$_.UserName -eq $null} | Sort-Object MachineName
-            if ( $AllAvailableMachines -eq $null ) {
+            if ( -not $AllAvailableMachines ) {
                 Write-Warning  -Message "No available machines in pool ($PoolName). Exiting script."
                 $HVConnection = Disconnect-HVServer -Server $HVServer -Confirm:$false -WhatIf:$false -Force
                 If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 } 
@@ -166,18 +166,18 @@ Process{
     } else {
         # Verify supplied machine exists in pool
         Write-Verbose -Message "Verifying supplied machine name ($MachineName) exists in pool ($PoolName)."
-        [System.Object]$MachineExist = Get-HVMachine -PoolName $PoolName -MachineName $MachineName
-        if ( -not $MachineExist ) {
-            Write-Warning  -Message "No available machines in pool ($PoolName). Exiting script."
+        $MachineExist = Get-HVMachine -PoolName $PoolName -MachineName $MachineName -ErrorAction SilentlyContinue
+        if ( $null -ne $MachineExist ) {
+            Write-Verbose -Message "Found supplied machine in pool."
+        } else {
+            Write-Warning  -Message "Machine ($MachineName) could not be found in the pool ($PoolName). Exiting script."
             $HVConnection = Disconnect-HVServer -Server $HVServer -Confirm:$false -WhatIf:$false -Force
             If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 1603; Exit } Else { Exit 1603 }
-        } else {
-            Write-Verbose -Message "Found supplied machine in pool."
         }
     }
 
     # If groupname is not set, script will fetch first entitled group in supplied pool.
-    if ( -not $ADGroupIdentity ) {
+    if ( $ADGroupIdentity -eq $false ) {
         Write-Verbose -Message "Ad group identity was not supplied in script parameter. Will fetch first available entitled group in the pool."
         $ADGroupIdentity = Get-HVEntitlement -ResourceType Desktop -ResourceName $PoolName -ErrorAction Stop | Where-Object {$_.Base.Group -eq $true} | Select-Object -First 1 -ExpandProperty Base | Select-Object -ExpandProperty SID
         Write-Verbose -Message "Successfully fetched first found group SID ($ADGroupIdentity)."
@@ -277,7 +277,13 @@ Process{
 End{
     # Disconnect from HVServer
     $HVConnection = Disconnect-HVServer -Server $HVServer -Confirm:$false -WhatIf:$false -Force
-    # Write success message and exit script
-    Write-Host -Object "Successfully assigned the user $UserName to the machine $MachineName."
+    
+    # If using whatif. assure user nothing happened
+    if ( $WhatIfPreference ) {
+        Write-Host -Object "What if: Simulation complete!"
+    } else {
+        # Write success message and exit script
+        Write-Host -Object "Successfully assigned the user $UserName to the machine $MachineName."
+    }
     If (Test-Path -LiteralPath 'variable:HostInvocation') { $script:ExitCode = 0; Exit } Else { Exit 0 }
 }
