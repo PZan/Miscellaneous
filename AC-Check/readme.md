@@ -1,5 +1,5 @@
 # About AC-check
-AC-Check is a modified PowerShell Application Toolkit package inteded to be used with a SCCM Task Sequence.
+AC-Check is a modified PowerShell Application Deployment Toolkit package inteded to be used with a SCCM Task Sequence.
 
 The script will only reach completion if it can successfully detect a connected power adapter. Until then it will loop through a countdown (starting off with 5 minutes, and later loops through 60 seconds) which will be nagging on the user so much that resistence is futile.
 
