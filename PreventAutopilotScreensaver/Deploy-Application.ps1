@@ -337,7 +337,6 @@ Try {
         Show-InstallationProgress
 
         ## <Perform Pre-Uninstallation tasks here>
-        Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\SPK' -Name 'UpdateOS' -Type 'String' -Value 'Installed'
 
         ##*===============================================
         ##* UNINSTALLATION
@@ -345,12 +344,6 @@ Try {
         [String]$installPhase = 'Uninstallation'
 
         ## Handle Zero-Config MSI Uninstallations
-        If ($useDefaultMsi) {
-            [Hashtable]$ExecuteDefaultMSISplat = @{ Action = 'Uninstall'; Path = $defaultMsiFile }; If ($defaultMstFile) {
-                $ExecuteDefaultMSISplat.Add('Transform', $defaultMstFile)
-            }
-            Execute-MSI @ExecuteDefaultMSISplat
-        }
 
         ## <Perform Uninstallation tasks here>
 
@@ -383,13 +376,6 @@ Try {
         ##*===============================================
         [String]$installPhase = 'Repair'
 
-        ## Handle Zero-Config MSI Repairs
-        If ($useDefaultMsi) {
-            [Hashtable]$ExecuteDefaultMSISplat = @{ Action = 'Repair'; Path = $defaultMsiFile; }; If ($defaultMstFile) {
-                $ExecuteDefaultMSISplat.Add('Transform', $defaultMstFile)
-            }
-            Execute-MSI @ExecuteDefaultMSISplat
-        }
         ## <Perform Repair tasks here>
 
         ##*===============================================
