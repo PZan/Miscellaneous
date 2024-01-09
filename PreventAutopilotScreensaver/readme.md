@@ -5,7 +5,7 @@ I had this idea in my head and after checking in with /r/intune ([link to my pos
 
 This PowerShell Application Deployment Toolkit project does the following:
 
-1. Exits if OOBE is not running (for security reasons)
+1. Exits if OOBE is not running
 2. Downloads and installs the latest x64 installer of Microsoft PowerToys 
    - Via Microsoft GitHub repository
    - (we want the Awake tool from PowerToys)
