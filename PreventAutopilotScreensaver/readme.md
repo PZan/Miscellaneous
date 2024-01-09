@@ -1,7 +1,7 @@
 This project is intended to prevent  Windows from locking the user session during the user part of Intune Autopilot (Erollment Status Page). 
 The end goal is to allow for a complete passwordless experience, which is often intervened by security baseline policies being applied during Autopilot.
 
-I had this idea in my head and after checking in with /r/intune ([link to my post here](https://www.reddit.com/r/Intune/comments/18o9ue5/lock_screen_screen_saver_during_autopilot/)) I decided to go ahead with my mad plans and of course want to share this on GitHub in case other don't want to invent the wheel.
+I had this idea in my head and after checking in with /r/intune ([link to my post here](https://www.reddit.com/r/Intune/comments/18o9ue5/lock_screen_screen_saver_during_autopilot/)) I decided to go ahead with my mad plans and of course want to share this on GitHub in case others don't want to invent the wheel.
 
 This PowerShell Application Deployment Toolkit project does the following:
 
