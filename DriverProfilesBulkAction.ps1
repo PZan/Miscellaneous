@@ -2,7 +2,7 @@
 .SYNOPSIS
     List, approve or decline drivers in Intune Windows Update for Business.
 .DESCRIPTION
-    List, approve or deckube drivers in Intune Windows Update for Business.
+    List, approve or decline drivers in Intune Windows Update for Business.
     
     Required modules (will be installed if missing):
         Microsoft.Graph.Authentication
