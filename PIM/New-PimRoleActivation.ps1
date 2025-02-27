@@ -27,13 +27,13 @@
     Supply a custom justification that will be added to your request. This is optional. If not supplied a predefined justification will be used.
 
     .EXAMPLE
-    PS C:\> Enable-PimRoleActivation.ps1 -InputObject $MyPimRole -Duration (New-TimeSpan -Hours 1 -Minutes 30)
+    PS C:\> .\New-PimRoleActivation.ps1 -InputObject $MyPimRole -Duration (New-TimeSpan -Hours 1 -Minutes 30)
 
     .EXAMPLE
     PS C:\> $MyTimeSpan = New-TimeSpan -Hours 1
     PS C:\> $MyPimRoles = .\Get-MyPimRoles.ps1
     PS C:\> $MyJustification = "Activating this role for a very important operation."
-    PS C:\> Enable-PimRoleActivation.ps1 -InputObject $MyPimRoles[0] -Duration $MyTimeSpan
+    PS C:\> .\New-PimRoleActivation.ps1 -InputObject $MyPimRoles[0] -Duration $MyTimeSpan
 
     .PARAMETER NoDisconnect
     Hidden paramter to allow for keeping the active graph connection in the console.
