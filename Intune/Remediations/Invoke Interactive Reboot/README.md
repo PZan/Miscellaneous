@@ -1,7 +1,7 @@
 ## Invoke Interactive Reboot
 This Remediation determines if the system has been rebooted within the last 7 days and perfoms an user interactive remediation if the device has a pending reboot, prompting the user to restart Windows.
 
-The script utilizes PSAppDeployToolkit (v4) and ServiceUI (x64). ServiceUI is an application used for making hidden system services visible to the active user session. It is made available in the [Microsoft Deployment Toolkit (MDT)](https://www.microsoft.com/en-us/download/details.aspx?id=54259). If you do not trust that this script is using an original copy of ServiceUI in the base64 string you may download and install MDT in order to make a base64 string copy of ServiceUI yourself.
+The script utilizes PSAppDeployToolkit (v4) and ServiceUI (x64). ServiceUI is an application used for making hidden system services (i.e Intune Management Engine) visible to the active user session. It is made available in the [Microsoft Deployment Toolkit (MDT)](https://www.microsoft.com/en-us/download/details.aspx?id=54259). If you do not trust that this script is using an original copy of ServiceUI in the base64 string you may download and install MDT in order to make a base64 string copy of ServiceUI yourself.
 
 **This remediation requires**:
 - [The PSAppDeployToolkit module installed](../PSAppDeployToolkit%20v4%20Enablement/) in AllUsers  Scope
