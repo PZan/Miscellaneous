@@ -9,7 +9,8 @@ if ( $null -eq (Get-Module PSAppDeployToolkit) ) {
     }
 }
 
-$AdtEnvironment = Initialize-ADTModule
+Initialize-ADTModule
+$AdtEnvironment = Get-ADTEnvironment
 
 # Im based in Norway, so message will be presented in Norwegian or English. Customize to your needs.
 switch ( $AdtEnvironment.currentUILanguage ) {
