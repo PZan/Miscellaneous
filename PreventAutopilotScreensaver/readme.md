@@ -28,9 +28,9 @@ How to implement:
 1. Download the project.
 2. Make adjustments to Deploy-Application.ps1 script if desired (for example appVendor is used when registering the Scheduled Tasks, and you might want to modify the cleanup start/end boundary)
 3. Create an Intune Win32 App with the Microsoft Win32 Content Prep Tool and create/upload the app in intune
-4. Make a custom requirement rule and use the Requirement-InOOBE.ps1 script!
-   - This is important as this will prevent the script from assigning on devices where OOBE is complete!
-   - The Requirement-InOOBE.ps1 script returns either 'Eligible' or 'Not eligible'
+4. Make two custom requirement rules using the scripts Requirement-InOOBE.ps1 and Requirement-IsAutopilotRunning.ps1
+   - This is important as this will prevent the package from assigning on devices where Autopilot is not running
+   - Both scripts returns either true or false (yes or no in the Intune Admin Center Web GUI) and both rules must be set to True ('yes')
 5. For detection check the existence of the folder %ProgramFiles%\Prevent-Screensaver-During-Autopilot
 6. Assign as required to your target devices (NOT User!)
 7. Make sure the assignment is in the list of Blocking Apps on you ESP Properties ("Block device use until required apps are installed if they are assigned to the user/device")
