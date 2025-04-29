@@ -1,9 +1,10 @@
+# Prevent Screensaver during Autopilot
 This project is intended to prevent  Windows from locking the user session during the user part of Intune Autopilot (Erollment Status Page). 
 The end goal is to allow for a complete passwordless experience, which is often intervened by security baseline policies being applied during Autopilot.
 
 I had this idea in my head and after checking in with /r/intune ([link to my post here](https://www.reddit.com/r/Intune/comments/18o9ue5/lock_screen_screen_saver_during_autopilot/)) I decided to go ahead with my mad plans and of course want to share this on GitHub in case others don't want to invent the wheel.
 
-This PowerShell Application Deployment Toolkit project does the following:
+## This PowerShell Application Deployment Toolkit project does the following:
 
 1. Exits if OOBE is not running
    - OOBE (Out-Of-Box-Experience) is the Device Configuration part of Autopilot ESP.
@@ -24,7 +25,7 @@ This PowerShell Application Deployment Toolkit project does the following:
      - After 24h
    - The cleanup script uninstalls PowerToys, unregisters the scheduled tasks and deletes the files copied to Program Files.
   
-How to implement:
+## How to implement:
 1. Download the project.
 2. Make adjustments to Deploy-Application.ps1 script if desired (for example appVendor is used when registering the Scheduled Tasks, and you might want to modify the cleanup start/end boundary)
 3. Create an Intune Win32 App with the Microsoft Win32 Content Prep Tool and create/upload the app in intune
