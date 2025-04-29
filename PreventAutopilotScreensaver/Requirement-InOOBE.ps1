@@ -1,4 +1,4 @@
-# Check if OOBE / ESP is running [credit Michael Niehaus]
+# Determine if in OOBE
 $TypeDef = @"
 using System;
 using System.Text;
@@ -6,17 +6,23 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 namespace Api
 {
-    public class Kernel32
-    {
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern int OOBEComplete(ref int bIsOOBEComplete);
-    }
+ public class Kernel32
+ {
+   [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+   public static extern int OOBEComplete(ref int bIsOOBEComplete);
+ }
 }
 "@
 Add-Type -TypeDefinition $TypeDef -Language CSharp
 $IsOOBEComplete = $false
 $null = [Api.Kernel32]::OOBEComplete([ref] $IsOOBEComplete)
-switch ( $IsOOBEComplete -eq 1 ) {
-    $true   { Write-Output -InputObject "Not Eligible"  } 
-    default { Write-Output -InputObject "Eligible" }
+# 0 means we're in OOBE
+switch ($IsOOBEComplete -eq 0) {
+    $true {
+        $inOOBE = $true
+    }
+    $false {
+        $inOOBE = $false
+    }
 }
+Write-Output $inOOBE
